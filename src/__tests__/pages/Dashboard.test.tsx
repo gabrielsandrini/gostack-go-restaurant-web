@@ -88,7 +88,7 @@ describe('Dashboard', () => {
       fireEvent.click(getByText('Novo Prato'));
     });
 
-    const inputImage = getByPlaceholderText('Cole o link da imagem aqui');
+    const inputImage = getByPlaceholderText('Cole o link aqui');
     const inputName = getByPlaceholderText('Ex: Moda Italiana');
     const inputValue = getByPlaceholderText('Ex: 19.90');
     const inputDescription = getByPlaceholderText('Descrição');
@@ -176,7 +176,7 @@ describe('Dashboard', () => {
       fireEvent.click(getByTestId('edit-food-1'));
     });
 
-    const inputImage = getByPlaceholderText('Cole o link da imagem aqui');
+    const inputImage = getByPlaceholderText('Cole o link aqui');
     const inputName = getByPlaceholderText('Ex: Moda Italiana');
     const inputValue = getByPlaceholderText('Ex: 19.90');
     const inputDescription = getByPlaceholderText('Descrição');
