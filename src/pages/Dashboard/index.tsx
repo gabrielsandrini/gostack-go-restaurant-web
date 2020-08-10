@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 import Header from '../../components/Header';
 
@@ -35,71 +35,76 @@ const Dashboard: React.FC = () => {
     loadFoods();
   }, []);
 
-  async function handleAddFood(
-    food: Omit<IFoodPlate, 'id' | 'available'>,
-  ): Promise<void> {
-    const { image, name, description, price } = food;
-    try {
-      const response = await api.post('/foods', {
+  const handleAddFood = useCallback(
+    async (food: Omit<IFoodPlate, 'id' | 'available'>): Promise<void> => {
+      const { image, name, description, price } = food;
+      try {
+        const response = await api.post('/foods', {
+          image,
+          name,
+          description,
+          price,
+          available: true,
+        });
+
+        setFoods(f => {
+          f.push(response.data);
+          return f;
+        });
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    [],
+  );
+
+  const handleUpdateFood = useCallback(
+    async (food: Omit<IFoodPlate, 'id' | 'available'>): Promise<void> => {
+      // UPDATE A FOOD PLATE ON THE API
+      const { id, available } = editingFood;
+      const { image, name, price, description } = food;
+      const response = await api.put(`/foods/${id}`, {
+        id,
+        available,
         image,
         name,
-        description,
         price,
-        available: true,
+        description,
       });
 
+      const index = foods.findIndex(searchFood => searchFood.id === id);
       setFoods(f => {
-        f.push(response.data);
-        return f;
+        f.splice(index, 1, response.data);
+        return [...f];
       });
-    } catch (err) {
-      console.log(err);
-    }
-  }
+    },
+    [editingFood, foods],
+  );
 
-  async function handleUpdateFood(
-    food: Omit<IFoodPlate, 'id' | 'available'>,
-  ): Promise<void> {
-    // UPDATE A FOOD PLATE ON THE API
-    const { id, available } = editingFood;
-    const { image, name, price, description } = food;
-    const response = await api.put(`/foods/${id}`, {
-      id,
-      available,
-      image,
-      name,
-      price,
-      description,
-    });
+  const handleDeleteFood = useCallback(
+    async (id: number): Promise<void> => {
+      // DELETE A FOOD PLATE FROM THE API
+      await api.delete(`foods/${id}`);
 
-    const index = foods.findIndex(searchFood => searchFood.id === id);
-    setFoods(f => {
-      f.splice(index, 1, response.data);
-      return [...f];
-    });
-  }
+      const index = foods.findIndex(food => food.id === id);
+      foods.splice(index, 1);
+      setFoods([...foods]);
+    },
+    [foods],
+  );
 
-  async function handleDeleteFood(id: number): Promise<void> {
-    // DELETE A FOOD PLATE FROM THE API
-    await api.delete(`foods/${id}`);
-
-    const index = foods.findIndex(food => food.id === id);
-    foods.splice(index, 1);
-    setFoods([...foods]);
-  }
-
-  function toggleModal(): void {
+  const toggleModal = useCallback((): void => {
     setModalOpen(!modalOpen);
-  }
+  }, [modalOpen]);
 
-  function toggleEditModal(): void {
+  const toggleEditModal = useCallback((): void => {
     setEditModalOpen(!editModalOpen);
-  }
+  }, [editModalOpen]);
 
-  function handleEditFood(food: IFoodPlate): void {
-    // TODO SET THE CURRENT EDITING FOOD ID IN THE STATE
+  const handleEditFood = useCallback((food: IFoodPlate): void => {
+    // SET THE CURRENT EDITING FOOD ID IN THE STATE
     setEditingFood(food);
-  }
+  }, []);
 
   return (
     <>
